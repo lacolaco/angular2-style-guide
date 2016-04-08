@@ -6,7 +6,7 @@
 The purpose of the following style guide is to present a set of best practices and style guidelines for the development of Angular 2 applications.
 If you are looking for an opinionated style guide for syntax, conventions, and structuring Angular 2 applications, then you can step in!
 
-**Disclaimer: The document is in alpha version which means that some the guidelines will change and new will be added.**
+**Disclaimer: This document is an alpha version which means that some of the guidelines will change and new ones will be added.**
 
 You are welcome to join the discussion of the best [practices here](https://github.com/mgechev/angular2-style-guide/issues).
 
@@ -16,6 +16,12 @@ The guidelines described below are based on:
 2. Suggestions by [Miško Hevery](https://github.com/mhevery) from his technical review of "[Switching to Angular 2](https://www.packtpub.com/web-development/switching-angular-2)".
 3. My own development experience working in a team on large-scale Angular 2 application.
 4. [John Papa's AngularJS 1.x style guide](https://github.com/johnpapa/angular-styleguide), for being consistent with the directory structure and testing across the different major versions of the framework.
+
+[Codelyzer](https://github.com/mgechev/codelyzer) makes sure your project is following the Angular 2 Style Guide using static-code analysis. It is already integrated in the following projects:
+
+- [angular-cli](https://github.com/angular/angular-cli)
+- [angular2-seed](https://github.com/mgechev/angular2-seed)
+- [angular2-webpack-starter](https://github.com/AngularClass/angular2-webpack-starter)
 
 ## Table of Contents
 
@@ -31,87 +37,331 @@ The guidelines described below are based on:
 10. [TypeScript specific practices](#typescript-specific-practices)
 11. [ES2015 and ES2016 specific practices](#es2015-and-es2016-specific-practices)
 12. [ES5 specific practices](#es5-specific-practices)
-13. [License](#license)
+13. [Tooling](#tooling)
+14. [License](#license)
 
 ## Directory Structure
 
-* Group files by the [bounded context](http://martinfowler.com/bliki/BoundedContext.html) they belong to. When a context (directory, for insance) grows to contain more than 15 files, start to consider creating a separate context by-type for them. Your threshold may be different, so adjust as needed.
+* Group files by the [bounded context](http://martinfowler.com/bliki/BoundedContext.html) they belong to. When a context (directory, for instance) grows to contain more than 9 files, start to consider creating a separate context by-type for them. Your threshold may be different, so adjust as needed:
 
   ```
   .
   ├── admin
-  │   ├── home-dashboard.component.ts
-  │   ├── home-dashboard.component.html
-  │   ├── home-dashboard.component.css
-  │   ├── home-dashboard.component.spec.ts
-  │   ├── login.component.ts
-  │   ├── login.component.spec.ts
-  │   ├── admin.model.ts
-  │   ├── user-management.service.ts
-  │   └── order-management.service.ts
-  ├── shared
-  │   ├── components
-  │   │   ├── avatar.component.ts
-  │   │   ├── avatar.component.html
-  │   │   ├── login-form.component.ts
-  │   │   ├── login-form.component.html
-  │   │   ├── login-form.component.css
-  │   │   └── login-form.component.spec.ts
-  │   ├── directives
-  │   │   ├── form-validator.directive.ts
-  │   │   ├── form-validator.directive.spec.ts
-  │   │   ├── tooltip.directive.ts
-  │   │   └── tooltip.directive.spec.ts
-  │   └── services
-  │       └── authorization.service.ts
-  ├── pipes
-  │   ├── format-order-name.pipe.ts
-  │   └── format-order-name.pipe.spec.ts
-  └── shop
-      ├── components
-      │   ├── edit-profile.component.ts
-      │   ├── edit-profile.component.html
-      │   ├── edit-profile.component.css
-      │   ├── edit-profile.component.spec.ts
-      │   ├── home.component.ts
-      │   ├── home.component.spec.ts
-      │   ├── home.component.html
-      │   ├── register.component.ts
-      │   └── register.component.spec.ts
-      ├── models
-      │   ├── shopping-cart.model.ts
-      │   ├── shopping-item.model.ts
-      │   └── user.model.ts
-      └── services
-          └── checkout.service.ts
+  │   ├── home-dashboard.component.ts
+  │   ├── home-dashboard.component.html
+  │   ├── home-dashboard.component.css
+  │   ├── home-dashboard.component.spec.ts
+  │   ├── login.component.ts
+  │   ├── login.component.spec.ts
+  │   ├── admin.model.ts
+  │   ├── user-management.service.ts
+  │   ├── order-management.service.ts
+  │   └── index.ts
+  │── shop
+  │   ├── components
+  │   │   ├── edit-profile.component.ts
+  │   │   ├── edit-profile.component.html
+  │   │   ├── edit-profile.component.css
+  │   │   ├── edit-profile.component.spec.ts
+  │   │   ├── home.component.ts
+  │   │   ├── home.component.spec.ts
+  │   │   ├── home.component.html
+  │   │   ├── register.component.ts
+  │   │   └── register.component.spec.ts
+  │   ├── models
+  │   │   ├── shopping-cart.model.ts
+  │   │   ├── shopping-item.model.ts
+  │   │   └── user.model.ts
+  │   ├── services
+  │   │   └── checkout.service.ts
+  │   └── index.ts
+  ├── components
+  │   ├── avatar.component.ts
+  │   ├── avatar.component.html
+  │   ├── login-form.component.ts
+  │   ├── login-form.component.html
+  │   ├── login-form.component.css
+  │   └── login-form.component.spec.ts
+  ├── directives
+  │   ├── form-validator.directive.ts
+  │   ├── form-validator.directive.spec.ts
+  │   ├── tooltip.directive.ts
+  │   └── tooltip.directive.spec.ts
+  ├── services
+  │   └── authorization.service.ts
+  └── pipes
+      ├── format-order-name.pipe.ts
+      └── format-order-name.pipe.spec.ts
   ```
 
   *Why?*: The level of reusability of logic between bounded contexts should be low. On the other hand each code unit will belong to the bounded context it is associated with and will not pollute the directory structure.
 
-  *Why?*: Separation by bounded context will allow easier code reusability. In the general case a small, to medium applicaiton will contain a single bounded context, which will lead to a flat directory structure as the following:
+  *Why?*: Separation by bounded context will allow easier code reusability. In the general case a small, to medium application will contain a single bounded context, which will lead to a flat directory structure as the following:
 
   ```
   shop
   ├── components
-  │   ├── edit-profile.component.ts
-  │   ├── edit-profile.component.spec.ts
-  │   ├── edit-profile.component.html
-  │   ├── home.component.ts
-  │   ├── home.component.spec.ts
-  │   ├── home.component.html
-  │   ├── register.component.ts
-  │   └── register.component.spec.ts
+  │   ├── edit-profile.component.ts
+  │   ├── edit-profile.component.spec.ts
+  │   ├── edit-profile.component.html
+  │   ├── home.component.ts
+  │   ├── home.component.spec.ts
+  │   ├── home.component.html
+  │   ├── register.component.ts
+  │   └── register.component.spec.ts
   ├── models
-  │   ├── shopping-cart.model.ts
-  │   ├── shopping-item.model.ts
-  │   └── user.model.ts
-  └── services
-      └── checkout.service.ts
+  │   ├── shopping-cart.model.ts
+  │   ├── shopping-item.model.ts
+  │   └── user.model.ts
+  ├── services
+  │   └── checkout.service.ts
+  └── index.ts
   ```
 
   *Why?*: A developer can locate the code, identify what each file represents at a glance, the structure is flat as can be, and there is no repetitive nor redundant names.
 
-  *Why?*: When there are a lot of files (15+) locating them is easier with a consistent folder structures and more difficult in flat structures.
+  *Why?*: When there are a lot of files (9+) locating them is easier with a consistent folder structures and more difficult in flat structures.
+
+* Export and access all public members for given bounded context by its `index.ts` file located in the root directory of the context itself (for more information take a look at [this issue](https://github.com/mgechev/angular2-style-guide/issues/10)).
+
+  *Why?*: Having a facade which exports the public members enforces [encapsulation](https://en.wikipedia.org/wiki/Encapsulation_(computer_programming)).
+
+  *Why?*: Exporting all public members using a high-level facade shortens the paths to the individual code units.
+
+  ```
+  shop
+  ├── components
+  │   └── register.component.ts
+  └── index.ts
+  ```
+  For instance, in case the `register` component is exported with the `index.ts` facade by:
+
+  ```ts
+  // index.ts
+  export * from './components/register.component';
+  ```
+
+  On the example below, we can import it using:
+
+  ```ts
+  import {RegisterComponent} from './shop/index';
+  ```
+  Instead of:
+  ```ts
+  import {RegisterComponent} from './shop/components/register.component.spec';
+  ```
+
+  *Why?*: Can be applied with TypeScript's compiler option: `moduleResolution: node`, which will reduce the import to:
+
+  ```ts
+  import {RegisterComponent} from './shop';
+  ```
+
+* The second level division of the directory structure, which is associated with given bounded context and excludes the nested bounded context, should be by either code unit type (as illustrated on the examples above) or by feature like shown below:
+ 
+  ```
+  shop
+  ├── edit-profile
+  │   ├── edit-profile.component.ts
+  │   ├── edit-profile.component.spec.ts
+  │   └── edit-profile.component.html
+  ├── home
+  │   ├── home.component.ts
+  │   ├── home.component.spec.ts
+  │   └── home.component.html
+  ├── register
+  │   ├── register.component.ts
+  │   └── register.component.spec.ts
+  ├── common
+  │   ├── shopping-cart.model.ts
+  │   ├── shopping-item.model.ts
+  │   ├── checkout.service.ts
+  │   ├── user.model.ts
+  │   └── index.ts
+  └── index.ts
+  ```
+  
+* In case given bounded context contains two or more child contexts, divide them into separate directories:
+
+  ```
+  shop
+  ├── cart
+  │   ├── components
+  │   └── index.ts
+  ├── checkout
+  │   ├── components
+  │   └── index.ts
+  └── services
+  ```
+
+  There is a single top-level bounded context here called `shop` and two child contexts called `cart` and `checkout`.
+
+  *Why?*: Grouping the contexts in such a way will stimulate lazy-loading and bundling of the child contexts together.
+
+  *Why?*: This directory structure naturally follows the root-level division by bounded contexts.
+
+* Implement lazy-loading and/or bundling by bounded contexts. For instance:
+
+  ```
+  .
+  ├── admin
+  │   ├── components
+  │   │   └─ admin.component.ts
+  │   └── index.ts
+  │── shop
+  │   ├── cart
+  │   │   ├── ...
+  │   │   └── index.ts
+  │   ├── checkout
+  │   │   ├── ...
+  │   │   └── index.ts
+  │   ├── components
+  │   │   └─ shop.component.ts
+  │   └── index.ts
+  ├── components
+  │   └── app.component.ts
+  ├── directives
+  │   └── ...
+  ├── services
+  │   └── ...
+  └── pipes
+      └── ...
+  ```
+
+  In case the `app.component.ts` file contains the following route definition:
+
+  ```ts
+  @RouteConfig([
+    {
+      loader: () => System.import('../shop/index').then((m: any) => m.AdminComponent),
+      path: '/admin'
+    },
+    {
+      loader: () => System.import('../shop/index').then((m: any) => m.ShopComponent),
+      path: '/shop'
+    }
+  ])
+  export class AppComponent {...}
+  ```
+
+  And the user opens `https://example.com/shop`, during the initial load time the browser should load **only**:
+
+  - All top-level code units in `components`, `directives`, `services`, `pipes`.
+  - The entire `shop` bounded context, except its nested bounded contexts (in this case they should be loaded-lazily, just like the top-level bounded contexts).
+
+  *Why?*: In big projects will be loaded only the part of the application required for the selected functionality (in this case the shop module).
+
+* Do not access directly code units located in another bounded context located on the same or lower level of nesting. The only two exceptions are: via an `AsyncRoute` (since by default such bounded contexts are loaded lazily) or in case the application is not supposed to be lazily loaded (which in case of big applications is considered as a bad practice).
+
+  *Why?*: This way the lazy loading will be prevented, since the lower level bounded context will be bundled (or loaded) together with their parent bounded contexts.
+
+* Define all shared among bounded contexts components into a top-level directories. The code units can be combined into different directories by name, or in case their count grows significantly they should be grouped by type (as shown above).
+
+  *Why?*: The usage of `shared` directory for the common code units requires longer import paths without bringing much value.
+
+  *Why?*: The used across bounded contexts code units are supposed to be loaded/bundled before/together with all nested bounded contexts and reused across them.
+
+* Export and access all public members for given bounded context by its `index.ts` file located in the root directory of the context itself (for more information take a look at [this issue](https://github.com/mgechev/angular2-style-guide/issues/10)).
+
+  *Why?*: Having a facade which exports the public members enforces [encapsulation](https://en.wikipedia.org/wiki/Encapsulation_(computer_programming)).
+
+  *Why?*: Exporting all public members using a high-level facade shortens the paths to the individual code units.
+
+  ```
+  shop
+  ├── components
+  │   └── register.component.spec.ts
+  └── index.ts
+  ```
+  For instance, in case the `register` component is exported with the `index.ts` facade, on the example below, we can import it using:
+
+  ```ts
+  import {RegisterComponent} from './shop/index';
+  ```
+  Instead of:
+  ```ts
+  import {RegisterComponent} from './shop/components/register.component.spec';
+  ```
+
+* In case given bounded context contains two or more child contexts, divide them into separate directories:
+
+  ```
+  shop
+  ├── cart
+  │   ├── components
+  │   └── index.ts
+  ├── checkout
+  │   ├── components
+  │   └── index.ts
+  └── services
+  ```
+
+  There is a single top-level bounded context here called `shop` and two child contexts called `cart` and `checkout`.
+
+  *Why?*: Grouping the contexts in such a way will stimulate lazy-loading and bundling of the child contexts together.
+
+  *Why?*: This directory structure naturally follows the root-level division by bounded contexts.
+
+* Implement lazy-loading and/or bundling by bounded contexts. For instance:
+
+  ```
+  .
+  ├── admin
+  │   ├── components
+  │   │   └─ admin.component.ts
+  │   └── index.ts
+  │── shop
+  │   ├── cart
+  │   │   ├── ...
+  │   │   └── index.ts
+  │   ├── checkout
+  │   │   ├── ...
+  │   │   └── index.ts
+  │   ├── components
+  │   │   └─ shop.component.ts
+  │   └── index.ts
+  ├── components
+  │   └── app.component.ts
+  ├── directives
+  │   └── ...
+  ├── services
+  │   └── ...
+  └── pipes
+      └── ...
+  ```
+
+  In case the `app.component.ts` file contains the following route definition:
+
+  ```ts
+  @RouteConfig([
+    {
+      loader: () => System.import('../shop/index').then((m: any) => m.AdminComponent),
+      path: '/admin'
+    },
+    {
+      loader: () => System.import('../shop/index').then((m: any) => m.ShopComponent),
+      path: '/shop'
+    }
+  ])
+  export class AppComponent {...}
+  ```
+
+  And the user opens `https://example.com/shop`, during the initial load time the browser should load **only**:
+
+  - All top-level code units in `components`, `directives`, `services`, `pipes`.
+  - The entire `shop` bounded context, except its nested bounded contexts (in this case they should be loaded-lazily, just like the top-level bounded contexts).
+
+  *Why?*: In big projects will be loaded only the part of the application required for the selected functionality (in this case the shop module).
+
+* Do not access directly code units located in another bounded context located on the same or lower level of nesting. The only two exceptions are: via an `AsyncRoute` (since by default such bounded contexts are loaded lazily) or in case the application is not supposed to be lazily loaded (which in case of big applications is considered as a bad practice).
+
+  *Why?*: This way the lazy loading will be prevented, since the lower level bounded context will be bundled (or loaded) together with their parent bounded contexts.
+
+* Define all shared among bounded contexts components into a top-level directories. The code units can be combined into different directories by name, or in case their count grows significantly they should be grouped by type (as shown above).
+
+  *Why?*: The usage of `shared` directory for the common code units requires longer import paths without bringing much value.
+
+  *Why?*: The used across bounded contexts code units are supposed to be loaded/bundled before/together with all nested bounded contexts and reused across them.
 
 * Define only a single code unit (component, directive, service, pipe, etc.) per file. If the unit uses other internal for the given module logic you can keep it in the same module, without exporting it.
 
@@ -119,7 +369,7 @@ The guidelines described below are based on:
 
   *Why?*: Do not export private APIs because you need to manage them and keep them consistent for the end users.
 
-* Name the files which contain component, directives, pipes and services definition with the corresponding suffix.
+* Name the files which contain component, directives, pipes, services or other code unit with the corresponding suffix.
 
   ```
   // Contains the "home-dashboard" component
@@ -130,7 +380,17 @@ The guidelines described below are based on:
 
   // Contains the logic for the "checkout" service.
   checkout.service.ts
+
+  // For redux-like architecture
+  todo.store.ts
+  todo.reducer.ts
   ```
+
+  *Why?* This way files can be discovered easier using text editor's/IDE's fuzzy search and also in case of many tabs open the different code units are easy recognizable.
+
+  ![](https://raw.githubusercontent.com/mgechev/angular2-style-guide/master/assets/ide-tabs.png)
+
+  On the example above we it is obvious for us what type of functionality is opened in the individual tabs.
 
 * Keep the modules self-contained and coherent. Each module should have a [single reason to change](https://en.wikipedia.org/wiki/Single_responsibility_principle).
 
@@ -145,7 +405,7 @@ The guidelines described below are based on:
   *Why?*: Keeps consistency with AngularJS 1.x style guidelines.
 
   ```
-  /* CORRECT */
+  /* RECOMMENDED */
   tooltip.directive.ts
   user.service.ts
   ```
@@ -168,7 +428,7 @@ The guidelines described below are based on:
   *Why?*: This way you will be able to prevent name collisions.
 
   ```ts
-  /* WRONG */
+  /* AVOID */
   @Directive({
     selector: '[tooltip]'
   })
@@ -188,7 +448,7 @@ The guidelines described below are based on:
   ```
 
   ```ts
-  /* CORRECT */
+  /* RECOMMENDED */
   @Directive({
     selector: '[bsTooltip]'
   })
@@ -210,7 +470,7 @@ The guidelines described below are based on:
 * Name directives' controllers with `Directive` suffix and components' controllers with `Component` suffix. The name of any directive or component should be formed following the rule `BasicDescription` + `Directive` or `Component`.
 
   ```ts
-  /* CORRECT */
+  /* RECOMMENDED */
   @Directive({
     selector: '[sgTooltip]`
   })
@@ -228,6 +488,8 @@ The guidelines described below are based on:
     - This is a controller of a component.
     - The component should be used as an element.
 
+  *Why?*: In case a name suffix is used the class is easier to find with IDE's/text editor's fuzzy search.
+
 * Use [`@HostListener`](https://angular.io/docs/ts/latest/api/core/HostListener-var.html) and [`@HostBinding`](https://angular.io/docs/ts/latest/api/core/HostBinding-var.html) instead of the [`host`](https://angular.io/docs/ts/latest/api/core/Host-var.html) property of the [`@Directive`](https://angular.io/docs/ts/latest/api/core/Directive-decorator.html) and [`@Component`](https://angular.io/docs/ts/latest/api/core/Component-decorator.html) decorators:
 
   *Why?*: The name of the property, or method name associated to [`@HostBinding`](https://angular.io/docs/ts/latest/api/core/HostBinding-var.html) or respectively [`@HostListener`](https://angular.io/docs/ts/latest/api/core/HostListener-var.html) should be modified only in a single place - in the directive's controller. In contrast if you use [`host`](https://angular.io/docs/ts/latest/api/core/Host-var.html) you need to modify both the property declaration inside the controller, and the metadata associated to the directive.
@@ -235,27 +497,27 @@ The guidelines described below are based on:
   *Why?*: The metadata declaration attached to the directive is shorter and thus more readable.
 
   ```ts
-  /* WRONG */
+  /* AVOID */
   @Directive({
-    selector: '[sgSample'],
+    selector: '[sgSample]',
     host: {
       '(mouseenter)': 'onMouseEnter()',
-      'role': 'button'
+      'attr.role': 'button'
     }
   })
   class SampleDirective {
-    button;
+    role = 'button';
     onMouseEnter() {...}
   }
   ```
 
   ```ts
-  /* CORRECT */
+  /* RECOMMENDED */
   @Directive({
     selector: '[sgSample]'
   })
   class SampleDirective {
-    @HostBinding('role') button;
+    @HostBinding('attr.role') role = 'button';
     @HostListener('mouseenter') onMouseEnter() {...}
   }
   ```
@@ -271,7 +533,7 @@ The guidelines described below are based on:
   *Why?*: Keeps the element names consistent with the specification for [Custom Elements](https://www.w3.org/TR/custom-elements/).
 
   ```ts
-  /* WRONG */
+  /* AVOID */
   @Component({
     selector: '[sg-button]',
     template: `...`
@@ -280,12 +542,49 @@ The guidelines described below are based on:
   ```
 
   ```ts
-  /* CORRECT */
+  /* RECOMMENDED */
   @Component({
     selector: 'sg-button',
     template: `...`
   })
   class ButtonComponent {}
+  ```
+
+* Name events without the prefix `on`.
+
+* Name your event handler methods with the prefix `on` followed by the event name.
+
+  ```ts
+  /* AVOID */
+  @Component(...)
+  export class VoterComponent {
+    @Output() onVoted = new EventEmitter<boolean>();
+  }
+
+  <my-voter (onVoted)="onVoted($event)"></my-voter>
+  ```
+  ```ts
+  /* RECOMMENDED */
+  @Component(...)
+  export class VoterComponent {
+    @Output() voted = new EventEmitter<boolean>();
+  }
+
+  <my-voter (voted)="onVoted($event)"></my-voter>
+  ```
+
+  *Why?*: This is to be consistent with built-in events like button clicks:
+
+  ```ts
+  <button (click)="showDetails()">Show Details</button>
+  ```
+
+  *Why?*: Angular allows for an [alternative syntax](https://angular.io/docs/ts/latest/guide/template-syntax.html#!#binding-syntax) `on-*`. If the event itself was prefixed with `on` this would result in an `on-onEvent` binding expression.
+
+  ```ts
+  /* RECOMMENDED */
+  <hero-list (heroSelected)="onHeroSelected(selectedHero)"></hero-list>
+  <hero-list on-heroSelected="onHeroSelected(selectedHero)"></hero-list>
   ```
 
 * Keep the components as simple and coherent as possible but not too simple.
@@ -306,6 +605,10 @@ The guidelines described below are based on:
 
 * Locate the template of the component in the same directory where the component's logic resides in.
 
+* Use absolute URLs for paths to the templates of the components (set using `templateUrl`).
+
+  *Why?*: `moduleId` is not supported by all module loaders. In case we use `module.id` we will reduce the portability of our code to only CommonJS.
+
 * Use [`@Input`](https://angular.io/docs/ts/latest/api/core/Input-var.html) and [`@Output`](https://angular.io/docs/ts/latest/api/core/Output-var.html) instead of the `inputs` and `outputs` properties of the [`@Directive`](https://angular.io/docs/ts/latest/api/core/Directive-decorator.html) and [`@Component`](https://angular.io/docs/ts/latest/api/core/Component-decorator.html) decorators:
 
   *Why?*: The name of the property, or event name associated to [`@Input`](https://angular.io/docs/ts/latest/api/core/Input-var.html) or respectively [`@Output`](https://angular.io/docs/ts/latest/api/core/Output-var.html) should be modified only on a single place.
@@ -313,7 +616,7 @@ The guidelines described below are based on:
   *Why?*: The metadata declaration attached to the directive is shorter and thus more readable.
 
   ```ts
-  /* WRONG */
+  /* AVOID */
   @Component({
     selector: 'sg-button',
     template: `...`,
@@ -331,7 +634,7 @@ The guidelines described below are based on:
   ```
 
   ```ts
-  /* CORRECT */
+  /* RECOMMENDED */
   @Component({
     selector: 'sg-button',
     template: `...`
@@ -348,7 +651,7 @@ The guidelines described below are based on:
   *Why?*: May lead to confusion when the output or the input properties of a given directive are named a given way but exported differently as a public API.
 
   ```ts
-  /* WRONG */
+  /* AVOID */
   @Component({
     selector: 'sg-button',
     template: `...`
@@ -366,7 +669,7 @@ The guidelines described below are based on:
   ```
 
   ```ts
-  /* CORRECT */
+  /* RECOMMENDED */
   @Component({
     selector: 'sg-button',
     template: `...`
@@ -388,7 +691,7 @@ The guidelines described below are based on:
   *Why?*: The input creates one-way binding which means that we can bind it to an expression and its value gets automatically updated. We can inject a property with [`@Attribute`](https://angular.io/docs/ts/latest/api/core/Attribute-var.html) to a controller's constructor and get its value a single time.
 
   ```ts
-  /* WRONG */
+  /* AVOID */
   @Component({
     selector: 'sg-button',
     template: `...`
@@ -402,7 +705,7 @@ The guidelines described below are based on:
   ```
 
   ```ts
-  /* CORRECT */
+  /* RECOMMENDED */
   @Component({
     selector: 'sg-button',
     template: `...`
@@ -415,33 +718,31 @@ The guidelines described below are based on:
 * Detach components and directives which are not visible from the view in order to prevent the change detection running over them.
 
   ```ts
-  /* CORRECT */
+  /* RECOMMENDED */
   @Directive({
     selector: '[pane]'
   })
   class Pane {
     @Input() title;
     view: EmbeddedViewRef;
-    constructor(private _viewContainer: ViewContainerRef, private _templateRef: TemplateRef) {}
-    // Creates and attaches the view
+    constructor(private _changeDetectorRef: ChangeDetectorRef) {}
+    // Attaches the change detector
     show() {
-      this.view = this._viewContainer.createEmbeddedView(this._templateRef);
-      this._viewContainer.insert(this.view);
+      this._changeDetectorRef.reattach();
     }
-    // Detaches the view container
+    // Detaches the change detector
     hide() {
-      this._viewContainer.detach();
-      this._viewContainer.remove();
+      this._changeDetectorRef.detach();
     }
   }
   ```
 
-* Do not use native elements injected to the controller's constructors with `ElementRef`.
+* Do not directly access native elements injected to the controller's constructors with `ElementRef`.
 
   *Why?*: This way the application will get tightly coupled to the platform and thus won't be able to run independently from it. For instance, a web application injecting native DOM elements won't be able to run in WebWorker, nor be rendered on the server-side.
 
   ```ts
-  /* WRONG */
+  /* AVOID */
   @Component({
     selector: 'sg-text-field',
     template: `<input type="text">`
@@ -456,7 +757,7 @@ The guidelines described below are based on:
   ```
 
   ```ts
-  /* CORRECT */
+  /* RECOMMENDED */
   import {NgModel} from 'angular2/common';
 
   @Component({
@@ -478,7 +779,7 @@ The guidelines described below are based on:
   *Why?*: This way the application will get tightly coupled to the platform and thus won't be able to run independently from it. For instance, a web application injecting native DOM elements won't be able to run in WebWorker, neither be rendered on the server-side.
 
   ```ts
-  /* WRONG */
+  /* AVOID */
   @Component({
     selector: 'sg-items-list',
     template: `
@@ -495,7 +796,7 @@ The guidelines described below are based on:
   ```
 
   ```ts
-  /* CORRECT */
+  /* RECOMMENDED */
   import {NgModel} from 'angular2/common';
 
   @Component({
@@ -520,20 +821,20 @@ The guidelines described below are based on:
   *Why?*: In case the interface associated to given life-cycle hook is implemented one will get compile-time errors in case the hook is not implemented properly (for instance, the method name is misspelled).
 
   ```ts
-  /* WRONG */
+  /* AVOID */
   @Component({
     selector: 'sg-button',
     template: `...`
   })
   class ButtonComponent {
-    ngOnInit {
+    ngOnInit() {
       console.log('The component got initialized');
     }
   }
   ```
 
   ```ts
-  /* CORRECT */
+  /* RECOMMENDED */
   import {OnInit} from 'angular2/core';
 
   @Component({
@@ -541,7 +842,7 @@ The guidelines described below are based on:
     template: `...`
   })
   class ButtonComponent implements OnInit {
-    ngOnInit {
+    ngOnInit() {
       console.log('The component got initialized');
     }
   }
@@ -571,7 +872,7 @@ The guidelines described below are based on:
 * Name your pipe `name` property in camelCase.
 
   ```ts
-  /* WRONG */
+  /* AVOID */
   @Pipe({
     name: 'sg-transform-something'
   })
@@ -583,7 +884,7 @@ The guidelines described below are based on:
   ```
 
   ```ts
-  /* CORRECT */
+  /* RECOMMENDED */
   @Pipe({
     name: 'sgTransformSomething'
   })
@@ -606,7 +907,7 @@ The guidelines described below are based on:
 
 ## Routing
 
-* Name the routes the same way the components associated with them are called.
+* Name the routes the same way the components associated with them are called without the `Component` suffix.
 
   *Why?*: This way there is only a single name associated to a given route. This avoids confusion in case a given route is called in a different way to the components associated with it.
 
@@ -619,7 +920,7 @@ The guidelines described below are based on:
   *Why?*: When the name of the control is dynamically generated it will be hard to reference it inside of the controller associated to the form, and may lead to confusion.
 
   ```html
-  /* WRONG */
+  /* AVOID */
   <form>
     <input [ngControl]="foobar" type="text">
   </form>
@@ -632,7 +933,7 @@ The guidelines described below are based on:
   ```
 
   ```html
-  /* CORRECT */
+  /* RECOMMENDED */
   <form>
     <input ngControl="foo" type="text">
   </form>
@@ -645,9 +946,7 @@ The guidelines described below are based on:
 
 ## Reusable libraries
 
-* Follow the [angular-cli publisher guide](https://github.com/angular/angular-cli/blob/master/docs/ng-install.md#b-publisher-guide-preparing-your-library).
-
-  *Why?*: It will allow your library to be painlessly used with the official Angular 2 CLI tool.
+Waiting for announcement of official module format by [angular-cli](https://github.com/angular/angular-cli).
 
   **[Table of Contents](#table-of-contents)**
 
@@ -674,7 +973,7 @@ The guidelines described below are based on:
 * Name the test file the following way `NAME_OF_THE_TESTED_UNIT.spec.EXT`:
 
   ```
-  /* CORRECT */
+  /* RECOMMENDED */
   about.ts
   about.spec.ts
   ```
@@ -682,6 +981,12 @@ The guidelines described below are based on:
 * Place integration tests and tests that cover multiple code units into a separate `tests` directory in your project's root.
 
   **[Table of Contents](#table-of-contents)**
+
+* Use protractor for End-to-End testing.
+
+  *Why?*: It provides high-level API on top of the [Selenium WebDriver](http://www.seleniumhq.org/projects/webdriver/) and is supported by the Angular core team.
+
+* Name the End-to-End test files using the following convention: `NAME_OF_THE_TESTED_UNIT.e2e.EXT`.
 
 ## Change detection
 
@@ -701,20 +1006,33 @@ The guidelines described below are based on:
 
   *Why?*: `any` makes TypeScript behaves like a dynamic language. This way we gave up all the benefits we get from static typing such as better IDE/text editor support and compile-time type-checking.
 
-* Use "Façade modules" for exporting the public members of your application/library and hiding the implementation details.
+### TypeScript code style
 
-  ```ts
-  /* Example */
-  export {NgClass} from './directives/ng_class';
-  export {NgFor} from './directives/ng_for';
-  export {NgIf} from './directives/ng_if';
-  export {NgStyle} from './directives/ng_style';
-  export {NgSwitch, NgSwitchWhen, NgSwitchDefault} from './directives/ng_switch';
-  export * from './directives/observable_list_diff';
-  export {CORE_DIRECTIVES} from './directives/core_directives';
-  ```
+* Use the [style-guide](https://github.com/Microsoft/TypeScript/wiki/Coding-guidelines) provided by Microsoft for writing your TypeScript code.
 
-#### TypeScript dependency injection
+  *Why?*: It is a standardized guide that corresponds very well with the included paradigms and patterns.
+
+* (From [Classes.md#Accessors](https://github.com/Microsoft/TypeScript-Handbook/blob/master/pages/Classes.md#accessors)) Do not use `_` in variable names unless it's a field for a property.
+
+```ts
+class MyClass {
+  private myPrivateString:string = 'foobar';
+  public myPublicString:string = 'foobar, but public';
+
+  //exception: property field
+  private _answerToEverything:number = 42;
+
+  public get answerToEverything():number {
+    return this._answerToEverything;
+  }
+
+  public set answerToEverything(value:number) {
+    this._answerToEverything = value;
+  }
+}
+```
+
+### TypeScript dependency injection
 
 * Use the [`@Injectable()`](https://angular.io/docs/ts/latest/api/core/Injectable-decorator.html) decorator instead of explicitly declaring the dependencies using [`@Inject(TOKEN)`](https://angular.io/docs/ts/latest/api/testing/inject-function.html).
 
@@ -781,7 +1099,7 @@ The guidelines described below are based on:
   *Why?*: The DLS uses function expressions which are closer to the non-hoisted ES2015 classes.
 
   ```js
-  /* WRONG */
+  /* AVOID */
   function Component() {
     //...
   }
@@ -796,7 +1114,7 @@ The guidelines described below are based on:
   ```
 
   ```ts
-  /* CORRECT */
+  /* RECOMMENDED */
   var Component = ng.
     Component({
       //...
@@ -805,7 +1123,7 @@ The guidelines described below are based on:
       //...
     ])
     .Class({
-      constructor: functions () {
+      constructor: function () {
         //...
       }
     });
@@ -968,6 +1286,12 @@ The guidelines described below are based on:
   }
   ```
   **[Table of Contents](#table-of-contents)**
+
+## Tooling
+
+- [codelyzer - set of tslint rules Angular 2](https://github.com/mgechev/codelyzer).
+- [Sublime Text snippets Angular 2](https://github.com/evanplaice/angular2-snippets).
+- [WebStorm snippets Angular 2](https://github.com/d3viant0ne/angular2-webstorm-templates)
 
 ## License
 
